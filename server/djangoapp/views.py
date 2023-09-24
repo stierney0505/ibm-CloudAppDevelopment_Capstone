@@ -27,7 +27,7 @@ def about(request):
 
 
 # Create a `contact` view to return a static contact page
-#def contact(request):
+# def contact(request):
 def contact(request):
     context = {}
     if request.method == 'GET':
@@ -37,15 +37,56 @@ def contact(request):
 # def login_request(request):
 # ...
 
+
+def login_request(request):
+    context = {}
+    if request.method == 'POST':
+        username = request.POST['user']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('/djangoapp/')
+
 # Create a `logout_request` view to handle sign out request
 # def logout_request(request):
 # ...
-
+def logout_request(request):
+    context = {}
+    logout(request)
+    return redirect('/djangoapp/')
 # Create a `registration_request` view to handle sign up request
 # def registration_request(request):
 # ...
+def registration_request(request):
+    context = {}
+    if request.method == 'GET':
+        return render(request, 'djangoapp/registration.html', context)
+    
+    elif request.method == 'POST':
+        username = request.POST['user'];
+        password = request.POST['password'];
+        fname = request.POST['first_name'];
+        lname = request.POST['last_name'];
+        account = False
 
+        try:
+            User.objects.get(username=username)
+            account = True
+        except:
+            print("error")
+
+        if not account:
+            user = User.objects.create_user(username=username, first_name = fname, last_name = lname, password=password)
+
+            login(request, user)
+            return redirect("/djangoapp/")
+        else:
+            return render(request, 'djangoapp/registration.html')
 # Update the `get_dealerships` view to render the index page with a list of dealerships
+
+
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
@@ -59,4 +100,3 @@ def get_dealerships(request):
 # Create a `add_review` view to submit a review
 # def add_review(request, dealer_id):
 # ...
-
