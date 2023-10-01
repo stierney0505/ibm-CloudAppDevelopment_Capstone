@@ -92,7 +92,7 @@ def registration_request(request):
 def get_dealerships(request):
     context = {}
     if request.method == "GET":
-        url = 'https://stierney0505-3000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
+        url = 'https://stierney0505-3000.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get'
         # Get dealers from the URL
         context = {"dealerships": restapis.get_dealers_from_cf(url)}
         # Concat all dealer's short name
@@ -105,7 +105,7 @@ def get_dealerships(request):
 def get_dealer_details(request, dealer_id):
     context = {}
     if request.method == "GET":
-        url = "https://stierney0505-3000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews?id=" + str(dealer_id);
+        url = "https://stierney0505-5000.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/api/get_reviews?id=" + str(dealer_id);
         context = {"dealerships": restapis.get_dealer_reviews_from_cf(url, dealer_id)}
         return render(request, 'djangoapp/dealer_details.html', context)
 
@@ -114,7 +114,7 @@ def get_dealer_details(request, dealer_id):
 def add_review(request, dealer_id):
     if request.method == "GET":
         dealersid = dealer_id
-        url = "https://stierney0505-5000.theiadocker-3-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/dealer-get?dealerId={0}".format(dealersid)
+        url = "https://stierney0505-5000.theiadocker-2-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/dealer-get?dealerId={0}".format(dealersid)
         context = {
             "cars": models.CarModel.object.all(),
             "dealers": restapis.get_dealers_fromcf(url),

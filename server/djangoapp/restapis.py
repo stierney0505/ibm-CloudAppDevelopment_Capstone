@@ -1,23 +1,22 @@
 import requests
 import json
-import logging
 # import related models here
-from requests.auth import HTTPBasicAuth
 from . import models
-from ibm_watson import NaturalLanguageUnderstandingV1
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson.natural_language_understanding_v1 import Features, SentimentOptions
+from .models import CarDealer, DealerReview
+from requests.auth import HTTPBasicAuth
 
-logger = logging.getLogger(__name__)
+
 # Create a `get_request` to make HTTP GET requests
 # e.g., response = requests.get(url, params=params, headers={'Content-Type': 'application/json'},
 #                                     auth=HTTPBasicAuth('apikey', api_key))
+
 def get_request(url, **kwargs):
     print(kwargs)
     print("GET from {} ".format(url))
     try:
         # Call get method of requests library with URL and parameters
-        response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs)
+        response = requests.get(url, headers={'Content-Type': 'application/json'},
+                                            params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -25,16 +24,23 @@ def get_request(url, **kwargs):
     print("With status {} ".format(status_code))
     json_data = json.loads(response.text)
     return json_data
+
 # Create a `post_request` to make HTTP POST requests
-def post_request(url, json_payload, **kwargs):
-    json_obj = json_payload["review"]
+def post_request(url, **kwargs):
     print(kwargs)
+    print("POST to {} ".format(url))
     try:
-        response = requests.post(url, json=json_obj, params=kwargs)
+        # Call post method of requests library with URL and parameters
+        payload = kwargs.pop("payload")
+        response = requests.post(url, headers={'Content-Type': 'application/json'},
+                                            params=kwargs, json=payload)
     except:
-        print("Something went wrong")
-    print (response)
-    return response
+        # If any error occurs
+        print("Network exception occurred")
+    status_code = response.status_code
+    print("With status {} ".format(status_code))
+    json_data = json.loads(response.text)
+    return json_data
 # e.g., response = requests.post(url, params=kwargs, json=payload)
 
 
@@ -89,25 +95,24 @@ def get_dealer_reviews_from_cf(url, dealerId):
 
 # Create an `analyze_review_sentiments` method to call Watson NLU and analyze text
 def analyze_review_sentiments(text):
-    api_key = "UNL1ShV-c2bAwfGGyqQFjE-qVOOE-yPskbDybk8CWro0"
-    url = "https://api.us-south.natural-language-understanding.watson.cloud.ibm.com/instances/1bcae669-efa9-4160-9535-18d3807000a3"
-    texttoanalyze= text
-    version = '2020-08-01'
-    authenticator = IAMAuthenticator(api_key)
-    natural_language_understanding = NaturalLanguageUnderstandingV1(
-    version='2020-08-01',
-    authenticator=authenticator
-    )
-    natural_language_understanding.set_service_url(url)
-    response = natural_language_understanding.analyze(
-        text=text,
-        features= Features(sentiment= SentimentOptions())
-    ).get_result()
-    print(json.dumps(response))
-    sentiment_score = str(response["sentiment"]["document"]["score"])
-    sentiment_label = response["sentiment"]["document"]["label"]
-    print(sentiment_score)
-    print(sentiment_label)
-    sentimentresult = sentiment_label
+    url = "https://api.au-syd.natural-language-understanding.watson.cloud.ibm.com/instances/e24f9bdf-b4ed-4e1c-b579-c2322bc33646"
+    api_key = "_Ylk8XFcFanuX684SvJmVFGZZx1NM1EXAxSlwi4H6rbL"
+    params = {
+        "text": "I love apples! I do not like oranges.",
+        "features": {
+        "sentiment": {
+        "targets": [
+        "apples",
+        "oranges",
+        "broccoli"
+        ]
+        },
+        "keywords": {
+        "emotion": false
+            }
+        }
+    }
     
-    return sentimentresult
+    response = requests.post(url, json=params, headers={'Content-Type': 'application/json'},
+                                    auth=('apikey', api_key))
+    return response.json()["sentiment"]["document"]["label"]
